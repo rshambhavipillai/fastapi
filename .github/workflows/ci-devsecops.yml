@@ -8,7 +8,7 @@ on:
 
 permissions:
   contents: read
-  security-events: write  # Needed for Bandit to upload results
+  security-events: write
 
 jobs:
   build-test-scan:
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for SonarCloud
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -35,21 +35,16 @@ jobs:
 
       # --- SonarCloud Quality Scan ---
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@v2.3
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=Sameer-kulkarni-sk_fastapi-devsecops
-            -Dsonar.organization=sameer-kulkarni-sk
 
       # --- Bandit SAST Scan ---
       - name: Run Bandit Security Scan
         uses: PyCQA/bandit-action@v1
-        continue-on-error: true  # Don't fail the build on security findings
+        continue-on-error: true
         with:
           path: "devsecops-demo"
           level: high
           confidence: high
-          exit_zero: true  # Always succeed, just report findings
+          exit_zero: true
