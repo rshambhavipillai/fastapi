@@ -14,10 +14,6 @@ jobs:
   build-test-scan:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: devsecops-demo
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,9 +26,11 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
+        working-directory: devsecops-demo
         run: pip install -r requirements.txt
 
       - name: Run basic check
+        working-directory: devsecops-demo
         run: python -m compileall .
 
       # --- SonarCloud Quality Scan ---
@@ -41,6 +39,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Sameer-kulkarni-sk_fastapi-devsecops
+            -Dsonar.organization=sameer-kulkarni-sk
 
       # --- Bandit SAST Scan ---
       - name: Run Bandit Security Scan
