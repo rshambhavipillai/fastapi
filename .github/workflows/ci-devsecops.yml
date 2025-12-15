@@ -1,15 +1,17 @@
 name: DevSecOps CI (Python)
 
 on:
-    push:
-      branches: ["master"]
-    pull_request:
-      branches: ["master"]
-  
-  
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+permissions:
+  contents: read
+  security-events: write  # Needed for Bandit to upload results
 
 jobs:
-  build-and-test:
+  build-test-scan:
     runs-on: ubuntu-latest
 
     defaults:
@@ -19,6 +21,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for SonarCloud
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -30,3 +34,20 @@ jobs:
 
       - name: Run basic check
         run: python -m compileall .
+
+      # --- SonarCloud Quality Scan ---
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # --- Bandit SAST Scan ---
+      - name: Run Bandit Security Scan
+        uses: PyCQA/bandit-action@v1
+        continue-on-error: true  # Don't fail the build on security findings
+        with:
+          path: "devsecops-demo"
+          level: high
+          confidence: high
+          exit_zero: true  # Always succeed, just report findings
