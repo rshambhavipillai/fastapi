@@ -27,7 +27,8 @@ function setupTermynal() {
                                 isBlankSpace = false;
                             }
                         });
-                        dataValue = {};
+                        //                  dataValue = {}; // The blocker found in SAST (SonarQube)
+                        let dataValue = {};  // Fixed: Explicit variable declaration 
                         if (isBlankSpace) {
                             dataValue["delay"] = 0;
                         }
@@ -137,7 +138,7 @@ async function showRandomAnnouncement(groupId, timeInterval) {
 
 function handleSponsorImages() {
     const announceRight = document.getElementById('announce-right');
-    if(!announceRight) return;
+    if (!announceRight) return;
 
     const sponsorImages = document.querySelectorAll('.sponsor-image');
 
